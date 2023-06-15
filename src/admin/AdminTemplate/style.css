@@ -1,0 +1,11 @@
+.admin__main {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+}
+
+.admin__aside {
+    background-color: var(--dark-blue);
+    height: 100vh;
+    color: white;
+    font-size: 32px;
+}
