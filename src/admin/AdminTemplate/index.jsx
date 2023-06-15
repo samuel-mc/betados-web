@@ -8,7 +8,9 @@ const AdminTemplate = ({ children }) => {
   return (
     <main className="admin__main">
       <Sidebar />
-      {children}
+      <div className="admin__body">
+        {children}
+      </div>
     </main>
   );
 };
