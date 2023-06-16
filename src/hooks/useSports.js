@@ -2,7 +2,7 @@ import axios from "axios";
 
 const URL = 'http://localhost:3030/';
 
-const useCatalog = () => {
+const useSports = () => {
     const fetchSports = async () => {
         try {
             const response = await axios.get(`${URL}sports`);
@@ -37,4 +37,4 @@ const useCatalog = () => {
     };
 };
 
-export default useCatalog;
+export default useSports;

@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AdminTemplate from "./admin/AdminTemplate";
 import HomeAdmin from "./admin/HomeAdmin";
 import Sports from "./admin/Sports";
+import Countries from "./admin/Countries";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,14 @@ const router = createBrowserRouter([
       </AdminTemplate>
     ),
   },
+  {
+    path: "/admin/countries",
+    element: (
+      <AdminTemplate>
+        <Countries />
+      </AdminTemplate>
+    ),
+  }
 ]);
 
 export default router;

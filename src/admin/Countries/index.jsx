@@ -1,64 +1,65 @@
 import React, { useEffect, useState } from "react";
+import Body from "../CatalogBody";
+
+import useCountries from "../../hooks/useCountries";
+import Loading from "../Loading";
+import CatalogCard from "../CatalogCard";
 import {
-  Card,
   Button,
-  TextField,
+  Card,
   DialogActions,
   DialogContent,
+  TextField,
 } from "@mui/material";
-import useSports from "../../hooks/useSports";
-import Loading from "../Loading";
 import Modal from "../Modal";
-import Body from "../CatalogBody";
-import CatalogCard from "../CatalogCard";
 
-const SportCard = ({ sport, setLoading }) => {
+const CountryCard = ({ country }) => {
   const [open, setOpen] = useState(false);
-  const [sportName, setSportName] = useState(sport.name);
-  const [sportLogo, setSportLogo] = useState(sport.logo);
 
-  const { updateSport } = useSports();
+  const [countryName, setCountryName] = useState(country.name);
+  const [countryLogo, setCountryLogo] = useState(country.logo);
+
+  const { updateCountry } = useCountries();
 
   const handleSave = async () => {
     setOpen(false);
-    setLoading(true);
-    const sportUpdated = {
-      ...sport,
-      name: sportName,
-      logo: sportLogo,
+    const countryUpdated = {
+      ...country,
+      name: countryName,
+      logo: countryLogo,
     };
-    await updateSport(sportUpdated);
-    sport.name = sportName;
-    sport.logo = sportLogo;
-    setLoading(false);
+    await updateCountry(countryUpdated);
+    country.name = countryName;
+    country.logo = countryLogo;
   };
 
   return (
     <>
       <CatalogCard
+        key={country.id}
         handleEdit={() => setOpen(true)}
         handleDelete={() => console.log("delete")}
       >
-        <h2>{sport.name}</h2>
-        <img src={sport.logo} alt={sport.name} />
+        <h1>{country.name}</h1>
+        <img src={country.logo} />
       </CatalogCard>
-      <Modal title="Edit Sport" open={open} onClose={() => {}}>
+      <Modal title="Edit Countr" open={open} onClose={() => {}}>
         <DialogContent>
           <TextField
             label="Name"
             variant="outlined"
             fullWidth
             margin="normal"
-            value={sportName}
-            onChange={(e) => setSportName(e.target.value)}
+            value={countryName}
+            onChange={(e) => setCountryName(e.target.value)}
           />
           <TextField
-            label="Logo"
+            label="Logo URL"
             variant="outlined"
             fullWidth
             margin="normal"
-            value={sportLogo}
-            onChange={(e) => setSportLogo(e.target.value)}
+            value={countryLogo}
+            onChange={(e) => setCountryLogo(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -74,19 +75,20 @@ const SportCard = ({ sport, setLoading }) => {
   );
 };
 
-const NewSport = ({ open, setOpen }) => {
-  const [sportName, setSportName] = useState("");
-  const [sportLogo, setSportLogo] = useState("");
+const NewCountry = ({ countries, setCountries, open, setOpen }) => {
+  const [countryName, setCountryName] = useState("");
+  const [countryLogo, setCountryLogo] = useState("");
 
-  const { createSport } = useSports();
+  const { createCountry } = useCountries();
 
   const handleSave = async () => {
-    setOpen(false);
-    const sport = {
-      name: sportName,
-      logo: sportLogo,
+    const country = {
+      name: countryName,
+      logo: countryLogo,
     };
-    await createSport(sport);
+    await createCountry(country);
+    setOpen(false);
+    setCountries([...countries, country]);
   };
 
   return (
@@ -97,16 +99,16 @@ const NewSport = ({ open, setOpen }) => {
           variant="outlined"
           fullWidth
           margin="normal"
-          value={sportName}
-          onChange={(e) => setSportName(e.target.value)}
+          value={countryName}
+          onChange={(e) => setCountryName(e.target.value)}
         />
         <TextField
           label="Logo"
           variant="outlined"
           fullWidth
           margin="normal"
-          value={sportLogo}
-          onChange={(e) => setSportLogo(e.target.value)}
+          value={countryLogo}
+          onChange={(e) => setCountryLogo(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
@@ -121,50 +123,47 @@ const NewSport = ({ open, setOpen }) => {
   );
 };
 
-const Sports = () => {
-  const { fetchSports } = useSports();
-
-  const [sports, setSports] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+const Countries = () => {
+  const { fetchCountries } = useCountries();
+  const [countries, setCountries] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetchSports()
+    document.title = "Catalog - Countries";
+    setLoading(true);
+    fetchCountries()
       .then((data) => {
-        setSports(data);
         setLoading(false);
+        setCountries(data);
       })
       .catch((error) => {
         console.log(error);
         setLoading(false);
       });
-    document.title = "Sports - Catalog";
   }, []);
-
   return (
-    <Body title={"Catalog - Sports"}>
-      {loading ? (
-        <Loading />
-      ) : (
+    <Body title={"Catalog - Countries"}>
+      {loading && <Loading />}
+      {!loading && (
         <div className="catalog_grid">
-          {sports.map((sport) => (
-            <SportCard sport={sport} key={sport.id} setLoading={setLoading} />
-          ))}
+          {countries.map((country) => {
+            return <CountryCard key={country.id} country={country} />;
+          })}
           <Card className="sports__add">
             <Button
               variant="contained"
               color="success"
               onClick={() => setOpen(true)}
             >
-              <h2>Add Sport</h2>
+              <h2>Add Country</h2>
             </Button>
           </Card>
-          <NewSport open={open} setOpen={setOpen} />
+          <NewCountry countries={countries} setCountries={setCountries} open={open} setOpen={setOpen} />
         </div>
       )}
     </Body>
   );
 };
 
-export default Sports;
+export default Countries;
