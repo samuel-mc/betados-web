@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
 import {
   Card,
   Button,
@@ -6,31 +7,26 @@ import {
   DialogActions,
   DialogContent,
 } from "@mui/material";
-import useSports from "../../hooks/useSports";
+import * as sportActions from "../../actions/sportsActions";
+
 import Loading from "../Loading";
 import Modal from "../Modal";
 import Body from "../CatalogBody";
 import CatalogCard from "../CatalogCard";
 
-const SportCard = ({ sport, setLoading }) => {
+const SportCard = ({ sport, putSport }) => {
   const [open, setOpen] = useState(false);
   const [sportName, setSportName] = useState(sport.name);
   const [sportLogo, setSportLogo] = useState(sport.logo);
 
-  const { updateSport } = useSports();
-
   const handleSave = async () => {
-    setOpen(false);
-    setLoading(true);
     const sportUpdated = {
       ...sport,
       name: sportName,
       logo: sportLogo,
     };
-    await updateSport(sportUpdated);
-    sport.name = sportName;
-    sport.logo = sportLogo;
-    setLoading(false);
+    setOpen(false);
+    await putSport(sportUpdated);
   };
 
   return (
@@ -74,19 +70,17 @@ const SportCard = ({ sport, setLoading }) => {
   );
 };
 
-const NewSport = ({ open, setOpen }) => {
+const NewSport = ({ open, postSport, setOpen }) => {
   const [sportName, setSportName] = useState("");
   const [sportLogo, setSportLogo] = useState("");
 
-  const { createSport } = useSports();
-
   const handleSave = async () => {
-    setOpen(false);
     const sport = {
       name: sportName,
       logo: sportLogo,
     };
-    await createSport(sport);
+    await postSport(sport);
+    setOpen(false);
   };
 
   return (
@@ -121,26 +115,24 @@ const NewSport = ({ open, setOpen }) => {
   );
 };
 
-const Sports = () => {
-  const { fetchSports } = useSports();
-
-  const [sports, setSports] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Sports = (props) => {
+  const { getSports, postSport, putSport, sportsReducer } = props;
+  const { sports, loading } = sportsReducer;
 
   const [open, setOpen] = useState(false);
 
+  const fetchSports = async () => {
+    await getSports();
+  };
+
   useEffect(() => {
-    fetchSports()
-      .then((data) => {
-        setSports(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
     document.title = "Sports - Catalog";
+    fetchSports();
   }, []);
+
+  useEffect(() => {
+    console.log("sports", sports);
+  }, [sports]);
 
   return (
     <Body title={"Catalog - Sports"}>
@@ -148,9 +140,10 @@ const Sports = () => {
         <Loading />
       ) : (
         <div className="catalog_grid">
-          {sports.map((sport) => (
-            <SportCard sport={sport} key={sport.id} setLoading={setLoading} />
-          ))}
+          {sports?.length > 0 &&
+            sports.map((sport) => (
+              <SportCard sport={sport} key={sport.id} putSport={putSport} />
+            ))}
           <Card className="sports__add">
             <Button
               variant="contained"
@@ -160,11 +153,19 @@ const Sports = () => {
               <h2>Add Sport</h2>
             </Button>
           </Card>
-          <NewSport open={open} setOpen={setOpen} />
+          <NewSport open={open} postSport={postSport} setOpen={setOpen} />
         </div>
       )}
     </Body>
   );
 };
 
-export default Sports;
+const mapStateToProps = ({ sportsReducer }) => ({
+  sportsReducer,
+});
+
+const mapDispatchToProps = {
+  ...sportActions,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sports);

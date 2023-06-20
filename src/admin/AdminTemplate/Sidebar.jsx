@@ -39,7 +39,7 @@ const Sidebar = () => {
             <ListItemButton sx={{ pl: 4 }} >
               <ListItemText primary="Teams" />
             </ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}>
+            <ListItemButton sx={{ pl: 4 }} component="a" href="/admin/leagues">
               <ListItemText primary="Leagues" />
             </ListItemButton>
             <ListItemButton sx={{ pl: 4 }} component="a" href="/admin/countries">

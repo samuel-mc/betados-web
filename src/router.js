@@ -4,6 +4,7 @@ import AdminTemplate from "./admin/AdminTemplate";
 import HomeAdmin from "./admin/HomeAdmin";
 import Sports from "./admin/Sports";
 import Countries from "./admin/Countries";
+import Leagues from "./admin/Leagues";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +34,15 @@ const router = createBrowserRouter([
         <Countries />
       </AdminTemplate>
     ),
-  }
+  },
+  {
+    path: "/admin/leagues",
+    element: (
+      <AdminTemplate>
+        <Leagues />
+      </AdminTemplate>
+    ),
+  },
 ]);
 
 export default router;

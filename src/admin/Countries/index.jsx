@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Body from "../CatalogBody";
-
-import useCountries from "../../hooks/useCountries";
-import Loading from "../Loading";
-import CatalogCard from "../CatalogCard";
+import { connect } from "react-redux";
 import {
   Button,
   Card,
@@ -11,6 +7,12 @@ import {
   DialogContent,
   TextField,
 } from "@mui/material";
+
+import * as countriesActions from "../../actions/countriesActions";
+
+import Body from "../CatalogBody";
+import Loading from "../Loading";
+import CatalogCard from "../CatalogCard";
 import Modal from "../Modal";
 
 const CountryCard = ({ country }) => {
@@ -19,8 +21,6 @@ const CountryCard = ({ country }) => {
   const [countryName, setCountryName] = useState(country.name);
   const [countryLogo, setCountryLogo] = useState(country.logo);
 
-  const { updateCountry } = useCountries();
-
   const handleSave = async () => {
     setOpen(false);
     const countryUpdated = {
@@ -28,7 +28,7 @@ const CountryCard = ({ country }) => {
       name: countryName,
       logo: countryLogo,
     };
-    await updateCountry(countryUpdated);
+    //await updateCountry(countryUpdated);
     country.name = countryName;
     country.logo = countryLogo;
   };
@@ -79,14 +79,12 @@ const NewCountry = ({ countries, setCountries, open, setOpen }) => {
   const [countryName, setCountryName] = useState("");
   const [countryLogo, setCountryLogo] = useState("");
 
-  const { createCountry } = useCountries();
-
   const handleSave = async () => {
     const country = {
       name: countryName,
       logo: countryLogo,
     };
-    await createCountry(country);
+    //await createCountry(country);
     setOpen(false);
     setCountries([...countries, country]);
   };
@@ -123,24 +121,18 @@ const NewCountry = ({ countries, setCountries, open, setOpen }) => {
   );
 };
 
-const Countries = () => {
-  const { fetchCountries } = useCountries();
-  const [countries, setCountries] = useState([]);
-  const [loading, setLoading] = useState(false);
+const Countries = (props) => {
+  const { getCountries, countriesReducer } = props;
+  const { countries, loading } = countriesReducer;
   const [open, setOpen] = useState(false);
+
+  const fetchCountries = async () => {
+    await getCountries();
+  };
 
   useEffect(() => {
     document.title = "Catalog - Countries";
-    setLoading(true);
-    fetchCountries()
-      .then((data) => {
-        setLoading(false);
-        setCountries(data);
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
+    fetchCountries();
   }, []);
   return (
     <Body title={"Catalog - Countries"}>
@@ -159,11 +151,19 @@ const Countries = () => {
               <h2>Add Country</h2>
             </Button>
           </Card>
-          <NewCountry countries={countries} setCountries={setCountries} open={open} setOpen={setOpen} />
+          <NewCountry countries={countries} open={open} setOpen={setOpen} />
         </div>
       )}
     </Body>
   );
 };
 
-export default Countries;
+const mapStateToProps = ({ countriesReducer }) => ({
+  countriesReducer,
+});
+
+const mapDispatchToProps = {
+  ...countriesActions,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Countries);
